@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>D3 prognos by pewi1399</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+   <body>
+     <!-- CSS (Styling) -->
+    <style type="text/css">
+            /* Format X and Y Axis */
+            .axis path,
+            .axis line {
+                fill: none;
+                stroke: grey;
+                shape-rendering: crispEdges;
+            }
+
+            .axis text {
+                font-family: sans-serif;
+                font-size: 11px;
+            }
+    </style>
+    <!-- End CSS (Styling) -->
+
+    <div id="data"></div>
+	
+    <!-- Load D3 from site -->
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="src/tabletop.js"></script>
+	
+	<!--<h2>Lon/Pensionsprognos D3</h2>-->
+    <h3></h3>
+	
+	<script type="text/javascript">
+	  window.onload = function() { init() };
+
+	  var public_spreadsheet_url = 'https://docs.google.com/spreadsheets/d/1fQqL97BZXb2PhC_lr9IQ0g9JPVM1An_4ee2T9ZI1MYc/pubhtml?gid=1047659107&single=true';
+
+	  function init() {
+		Tabletop.init( { key: public_spreadsheet_url,
+						 callback: showInfo,
+						 simpleSheet: true } )
+	  }
+
+	  function showInfo(data, tabletop) {
+	  
+			var numValues = data.length;
+			for(var i=0; i<numValues; i++) {
+				data[i].index = i // Add new numbers to array
+				data[i].Prognos = Number(data[i].Prognos)
+				data[i].Lon = Number(data[i].Lon);;
+			};
+			
+			// Setup settings for graphic
+            var canvas_width = 900;
+            var canvas_height = 500;
+            var padding = 100;  // for chart edges
+			//var margin = {top: 30, right: 20, bottom: 70, left: 50},
+			//	width = 600 - margin.left - margin.right,
+			//	height = 270 - margin.top - margin.bottom;
+
+            // Create scale functions
+            var xScale = d3.scale.linear()  // xScale is width of graphic
+                            .domain([0, d3.max(data, function(d) {
+                                return d["Lon"];  // input domain
+                            })])
+                            .range([padding, canvas_width - padding * 2]); // output range
+
+            var yScale = d3.scale.linear()  // yScale is height of graphic
+                            .domain([0, d3.max(data, function(d) {
+                                return d["Prognos"];  // input domain
+                            })])
+                            .range([canvas_height - padding, padding]);  // remember y starts on top going down so we flip
+
+            // Define X axis
+            var xAxis = d3.svg.axis()
+                            .scale(xScale)
+                            .orient("bottom")
+                            .ticks(5);
+
+            // Define Y axis
+            var yAxis = d3.svg.axis()
+                            .scale(yScale)
+                            .orient("left")
+                            .ticks(5);		
+
+
+			// Create SVG element
+            var svg = d3.select("h3")  // This is where we put our vis
+                .append("svg")
+                .attr("width", canvas_width)
+                .attr("height", canvas_height)
+
+            // Create Circles
+            svg.selectAll("circle")
+                .data(data)
+                .enter()
+                .append("circle")  // Add circle svg
+                .attr("cx", function(d) {
+					//d["x_last"] = xScale(d["x"]);
+                    return xScale(d["Lon"]);  // Circle's X
+                })
+                .attr("cy", function(d) {  // Circle's Y
+					//d["x_new"] =xScale(d["y"]);
+                    return yScale(d["Prognos"]);
+                })
+                .attr("r", 2);  // radius
+
+            // Add to X axis
+            svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + (canvas_height - padding) +")")
+                .call(xAxis);
+
+            // Add to Y axis
+            svg.append("g")
+                .attr("class", "y axis")
+                .attr("transform", "translate(" + padding +",0)")
+                .call(yAxis);
+				
+			svg.append("text")
+				.attr("class", "x label")
+				.attr("font-family", "sans-serif")
+				.attr("text-anchor", "end")
+				.attr("x", canvas_width-450)
+				.attr("y", canvas_height - 50)
+				.text("Inkomst");
+				
+			svg.append("text")
+				.attr("class", "y label")
+				.attr("text-anchor", "end")
+				.attr("font-family", "sans-serif")
+				.attr("y", 20)
+				.attr("x", -200)
+				.attr("dy", ".75em")
+				.attr("transform", "rotate(-90)")
+				.text("Prognos");
+				
+			var maxIndex = d3.max(data, function(d) {
+                                return d["index"];  // input domain
+                            });
+				
+				window.xScale = xScale;
+				window.yScale = yScale;
+				window.svg = svg;
+				window.xAxis = xAxis;
+				window.yAxis = yAxis;
+				window.maxIndex = maxIndex;
+				
+		};		
+			// On click, update with new data
+            //d3.select("h2")
+			
+		function renderNew() {
+		Tabletop.init( { key: public_spreadsheet_url,
+						 callback: showInfoN,
+						 simpleSheet: true } )
+	  }
+
+	  function showInfoN(data, tabletop) {
+	  
+	  			var numValues = data.length;
+			for(var i=0; i<numValues; i++) {
+				data[i].index = i // Add new numbers to array
+				data[i].Prognos = Number(data[i].Prognos)
+				data[i].Lon = Number(data[i].Lon);;
+			};
+	  
+                    //var numValues = 4;  // Get original dataset's length
+                    //var maxRange = Math.random() * 1000000;  // Get max range of new values
+                    //dataset = [];  // Initialize empty array
+                   // for(var i=0; i<numValues; i++) {
+                    //    var newNumber1 = Math.floor(Math.random() * maxRange);  // Random int for x
+                     //   var newNumber2 = Math.floor(Math.random() * maxRange);  // Random int for y
+					//	var inde = 1+ i + maxIndex
+                    //    data.push({Lon:newNumber1,Prognos:newNumber2, index:inde});  // Add new numbers to array
+                    //}
+					
+					//is point new or not
+					for(var i=0; i<data.length; i++) {
+						data[i].condition = (data[i].index <= maxIndex);  // Add condition
+					};
+					
+					
+                    // Update scale domains
+                    xScale.domain([0, d3.max(data, function(d) {
+                        return d["Lon"]; })]);
+                    yScale.domain([0, d3.max(data, function(d) {
+                        return d["Prognos"]; })]);
+					
+					//dataset = dataset.filter(function(d) { return d.x_last != xScale(d.x)})
+
+					
+					// Create Circles
+					svg.selectAll("circle")
+						.data(data)
+						//.filter(function(d) { return d["x_last"] != xScale(d["x"])})
+						.enter()
+						.append("circle")  // Add circle svg
+						.attr("cx", function(d) {
+							return xScale(d["Lon"]);  // Circle's X
+						})
+						.attr("cy", function(d) {  // Circle's Y
+							return yScale(d["Prognos"]);
+						})
+						.attr("r", 2)
+						.attr("fill", "white");  // radius
+
+                    // Update circles
+                    svg.selectAll("circle")
+                        .data(data)  // Update with new data
+                        .transition()  // Transition from old to new
+                        .duration(1000)  // Length of animation
+                        .each("start", function() {  // Start animation
+                            d3.select(this)  // 'this' means the current element
+                                .attr("fill", function(d) {
+												//if (Math.round(d.x_last) % 2 == 0) {return "blue"}
+												if (d.condition) {return "black"}
+												else {return "orange"};})// Change color
+								.style("opacity", 0.9)
+                                .attr("r",function(d) {
+												//if (Math.round(d.x_last) % 2 == 0) {return "blue"}
+												if (d.condition) {return "2"}
+												else {return "5"};});  // Change size
+                        })
+                        .delay(function(d, i) {
+                            return i / data.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
+                        })
+                        //.ease("linear")  // Transition easing - default 'variable' (i.e. has acceleration), also: 'circle', 'elastic', 'bounce', 'linear'
+                        .attr("cx", function(d) {
+                            return xScale(d["Lon"]);  // Circle's X
+                        })
+                        .attr("cy", function(d) {
+                            return yScale(d["Prognos"]);  // Circle's Y
+                        })
+                        .each("end", function() {  // End animation
+                            d3.select(this)  // 'this' means the current element
+                                .transition()
+                                .duration(500)
+                                .attr("fill", "black")  // Change color
+								.style("opacity", 1)
+                                .attr("r", 2);  // Change radius
+                        });
+
+                        // Update X Axis
+                        svg.select(".x.axis")
+                            .transition()
+                            .duration(1000)
+                            .call(xAxis);
+
+                        // Update Y Axis
+                        svg.select(".y.axis")
+                            .transition()
+                            .duration(100)
+                            .call(yAxis);
+							
+				maxIndex = d3.max(data, function(d) {
+                                return d["index"];  // input domain
+                            });
+                };
+				
+				
+				
+				
+			setInterval(renderNew, 60*1000);	
+	  
+			
+	</script>
+
+
+
+  </body>
+</html>
