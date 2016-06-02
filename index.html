@@ -31,6 +31,23 @@
                 font-family: sans-serif;
                 font-size: 11px;
             }
+            .Aligner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.Aligner-item {
+  max-width: 50%;
+}
+
+.Aligner-item--top {
+  align-self: flex-start;
+}
+
+.Aligner-item--bottom {
+  align-self: flex-end;
+}
     </style>
     <!-- End CSS (Styling) -->
 
@@ -42,7 +59,8 @@
 	
 	<!--<h2>Lon/Pensionsprognos D3</h2>-->
     <h3></h3>
-	
+	<div class="Aligner">
+  <div class="Aligner-item">
 	<script type="text/javascript">
 	  window.onload = function() { init() };
 
@@ -278,6 +296,9 @@
 	  
 			
 	</script>
+	</div></div>
+
+</div>
 
 
 
