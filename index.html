@@ -45,11 +45,11 @@
 
 	
 	<script type="text/javascript">
-	d3.select("h3").attr("align","center");
 	  window.onload = function() { init() };
 
 	  var public_spreadsheet_url = 'https://docs.google.com/spreadsheets/d/1fQqL97BZXb2PhC_lr9IQ0g9JPVM1An_4ee2T9ZI1MYc/pubhtml?gid=1047659107&single=true';
-
+	d3.select("h3").attr("align","center");
+	  
 	  function init() {
 		Tabletop.init( { key: public_spreadsheet_url,
 						 callback: showInfo,
@@ -62,12 +62,12 @@
 			for(var i=0; i<numValues; i++) {
 				data[i].index = i // Add new numbers to array
 				data[i].Prognos = Number(data[i].Prognos)
-				data[i].Lon = Number(data[i].Lon);;
+				data[i].Lön = Number(data[i].Lön);;
 			};
 			
 			// Setup settings for graphic
-            var canvas_width = 900;
-            var canvas_height = 500;
+            var canvas_width = 1100;
+            var canvas_height = 700;
             var padding = 100;  // for chart edges
 			//var margin = {top: 30, right: 20, bottom: 70, left: 50},
 			//	width = 600 - margin.left - margin.right,
@@ -76,7 +76,7 @@
             // Create scale functions
             var xScale = d3.scale.linear()  // xScale is width of graphic
                             .domain([0, d3.max(data, function(d) {
-                                return d["Lon"];  // input domain
+                                return d["Lön"];  // input domain
                             })])
                             .range([padding, canvas_width - padding * 2]); // output range
 
@@ -102,8 +102,95 @@
 			// Create SVG element
             var svg = d3.select("h3")  // This is where we put our vis
                 .append("svg")
+                .attr("class", "lineplot")
                 .attr("width", canvas_width)
                 .attr("height", canvas_height)
+				
+								
+			var xmax  =  d3.max(data, function(d) {
+                        return d["Lön"]; })
+						
+			var ymax  =  d3.max(data, function(d) {
+                        return d["Prognos"]; })
+						
+			var degreeBreakpoint = Math.atan(ymax/xmax)*180/Math.PI
+
+			
+
+			var degreeLines = [Math.atan(5/4)*180/Math.PI, 45, Math.atan(4/5)*180/Math.PI,Math.atan(7/10)*180/Math.PI]
+			var colors = ["darkslategrey" , "darkslategrey", "darkslategrey", "darkslategrey"]
+			
+			function getRandomInt(min, max) {
+						return Math.floor(Math.random() * (max - min + 1)) + min;
+			}
+		
+		//	var dashes = ["(3,3)", "(1,1)", "(10,3)"]
+		
+				svg.selectAll("line")
+					.data(degreeLines)
+					.enter()
+					.append("line")
+					.style("stroke", function(d,i){ return colors[i];})  // colour the line
+					.style("stroke-dasharray", function(d,i){ return (i*3,i*3);})
+					.attr("class", "GGX")
+					.attr("x1", xScale(0))     // x position of the first end of the line
+					.attr("y1", yScale(0))      // y position of the first end of the line
+					.attr("x2",  function(d) {
+					if(d < degreeBreakpoint){
+						var x = xScale(xmax);
+					} else {
+						var x =  xScale(ymax*(1/Math.tan(d*Math.PI/180))) ;
+					}
+					return x;
+					})     // x position of the second end of the line
+					.attr("y2", function(d) {
+					if(d < degreeBreakpoint){
+						var x = yScale(d3.min([Math.tan(d*Math.PI/180)*xmax,ymax]));
+					} else {
+						var x =  yScale(ymax);
+					}
+					return x;
+					})
+					.attr("stroke-width", function(d) {
+					if(d == 45){
+						var w = 1;
+					} else {
+						var w =  1;
+					}
+					return w;
+					});
+	
+	
+        var width = 660;
+        var height = 10;
+        var radius = Math.min(width, height) / 2;
+        var donutWidth = 200;
+        var legendRectSize = 13;                                  // NEW
+        var legendSpacing = 6;   				
+					
+					
+	var legend = svg.selectAll(".legend")
+      .data(degreeLines)
+    .enter().append("g")
+      .attr("class", "legend")
+      .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+  legend.append("line")
+      .attr("x1", width/5 )
+      .attr("x2", width/5+30)
+      .attr("y1", 100)
+      .attr("y2", 100)
+      .style("stroke-dasharray",function(d,i){ return (i*2,i*2);})
+      .style("stroke", "black");
+
+  legend.append("text")
+      .attr("x", width/5+80)
+      .attr("y", 100)
+      .attr("dy", ".35em")
+      .style("font-size", "15px")
+      .style("text-anchor", "end")
+      .text(function(d) { return Math.round(Math.tan(d*Math.PI/180)*100)+ "%"; });
+  
 
             // Create Circles
             svg.selectAll("circle")
@@ -112,13 +199,19 @@
                 .append("circle")  // Add circle svg
                 .attr("cx", function(d) {
 					//d["x_last"] = xScale(d["x"]);
-                    return xScale(d["Lon"]);  // Circle's X
+                    return xScale(d["Lön"]);  // Circle's X
                 })
                 .attr("cy", function(d) {  // Circle's Y
 					//d["x_new"] =xScale(d["y"]);
                     return yScale(d["Prognos"]);
                 })
-                .attr("r", 2);  // radius
+                .attr("r", 3) // radius
+                .style("fill", function(d){
+                  if(d["Kön"] == "Kvinna"){
+                    return "dodgerblue";
+                  }else{
+                    return "firebrick";
+                  }}); //color 
 
             // Add to X axis
             svg.append("g")
@@ -134,32 +227,139 @@
 				
 			svg.append("text")
 				.attr("class", "x label")
-				.attr("font-family", "sans-serif")
+				.attr("style", "font-family:Arial")
 				.attr("text-anchor", "end")
-				.attr("x", canvas_width-450)
+				.attr("x", canvas_width/2)
 				.attr("y", canvas_height - 50)
-				.text("Inkomst");
+				.style("font-size", "15px")
+				.style("fill", "grey")
+				.text("L\xF6n idag [SEK]");
 				
 			svg.append("text")
 				.attr("class", "y label")
 				.attr("text-anchor", "end")
-				.attr("font-family", "sans-serif")
+				.attr("style", "font-family:Arial")
 				.attr("y", 20)
-				.attr("x", -200)
+				.attr("x", -(canvas_height-padding)/4)
 				.attr("dy", ".75em")
 				.attr("transform", "rotate(-90)")
-				.text("Prognos");
+				.style("font-size", "15px")
+				.style("fill", "grey")
+				.text("Pensionsprognos, pensionering vid 65 	\xE5r [SEK]");
 				
 			var maxIndex = d3.max(data, function(d) {
                                 return d["index"];  // input domain
                             });
+                            
+            var w = 130,
+                h = 250,
+                radius = Math.min(w, h) / 2;
+
+            var arc = d3.svg.arc()
+                .outerRadius(radius - 7)
+                .innerRadius(radius - 35);
+
+            var pie = d3.layout.pie()
+                .value(function(d) { return d.population; })
+				.sort(null);
 				
+            
+            var males = d3.sum(data, function(d){ return d.Kön =="Man";});
+            var females = d3.sum(data, function(d){ return d.Kön == "Kvinna" ;});
+            
+            var pieData = [{age:"\u2642", population:males},{age:"\u2640", population:females}]
+            var color =["firebrick", "dodgerblue"]
+	
+			
+	var pathz = svg.datum(pieData).selectAll(".arcz") //slice_group
+			  .data(pie)
+				.enter().append("g");
+				
+	var slice_path = pathz.append("path") //slice_path
+			  .attr("d", arc)
+			  .style("fill", function(d, i) { return color[i]; })
+              .attr("opacity", 0.7)
+			  .each(function(d) { this._current = d; }); // store the initial angles
+			  
+	// Make group to hold labels
+	var label_group = pathz.append("g")
+	  .attr("transform", function(d) {
+		//console.log(d)
+		var c = arc.centroid(d);
+		return "translate(" + c[0] +"," + c[1] + ")";
+	  })
+
+	var line_1 = label_group.append("text") // First line
+	  //.text(function(d) { return d.data.series; })
+	   .text(function(d) { return d.data.age;})
+	  //.attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
+	  .attr("text-anchor", "middle")
+	  .attr("dy", ".35em")
+	  .attr("dx", "-.0em")
+	  .attr("fill", "white")
+	  .attr("style", "font-family:Arial");
+
+				  
+     var legendRectSize = 0;                                  // NEW
+     var legendSpacing = -15;                                    // NEW
+     
+     var text = [Math.round(females/(males+females)*100)+"/"+ Math.round(males/(females+males)*100)]             
+                  
+     var percentage = pathz.selectAll('.percent')                     // NEW
+          .data(text)                                   // NEW
+          .enter()                                                // NEW
+          .append('g')                                            // NEW
+          .attr('class', 'percent')
+          .attr('transform', function(d, i) {
+            var height = legendRectSize + legendSpacing;
+            var offset =  height * color.length / 2;
+            var horz = -2 * legendRectSize;
+            var vert = 19;
+            return 'translate(' + horz + ',' + vert + ')';
+          });
+          
+        percentage.append('text')
+          .attr('x', legendRectSize + legendSpacing+15)
+          .attr('y', legendRectSize + legendSpacing+2)
+          .attr("style", "font-family:Arial")
+          .style("font-size", "17px")
+          .style("fill","black")
+          .text(function(d) { return d; })
+          .style("text-anchor", "middle")
+          .attr("id", "mainLabel");
+
+		 pathz.attr('transform', 'translate('+(canvas_width-padding)+', '+(canvas_height-padding)+')');
+		 //slice_path.attr('transform', 'translate('+(canvas_width-padding)+', '+(canvas_height-padding)+')');
+			  
+  			  
+			  
+			  
+
+
+            function type(d) {
+              d.population = +d.population;
+              return d;
+            }                
+                            
+                            	
 				window.xScale = xScale;
 				window.yScale = yScale;
 				window.svg = svg;
 				window.xAxis = xAxis;
 				window.yAxis = yAxis;
 				window.maxIndex = maxIndex;
+				window.pie = pie;
+				window.pathz = pathz;
+				window.arc = arc;
+				window.slice_path = slice_path;
+				window.label_group = label_group;
+				window.line_1 = line_1;
+				window.percentage = percentage;
+				window.legendSpacing = legendSpacing;
+				window.legendRectSize = legendRectSize;
+				window.height = height;
+				window.percentage = percentage;
+				window.color = color;
 				
 		};		
 			// On click, update with new data
@@ -177,7 +377,7 @@
 			for(var i=0; i<numValues; i++) {
 				data[i].index = i // Add new numbers to array
 				data[i].Prognos = Number(data[i].Prognos)
-				data[i].Lon = Number(data[i].Lon);;
+				data[i].Lön = Number(data[i].Lön);;
 			};
 	  
                     //var numValues = 4;  // Get original dataset's length
@@ -198,7 +398,7 @@
 					
                     // Update scale domains
                     xScale.domain([0, d3.max(data, function(d) {
-                        return d["Lon"]; })]);
+                        return d["Lön"]; })]);
                     yScale.domain([0, d3.max(data, function(d) {
                         return d["Prognos"]; })]);
 					
@@ -212,7 +412,7 @@
 						.enter()
 						.append("circle")  // Add circle svg
 						.attr("cx", function(d) {
-							return xScale(d["Lon"]);  // Circle's X
+							return xScale(d["Lön"]);  // Circle's X
 						})
 						.attr("cy", function(d) {  // Circle's Y
 							return yScale(d["Prognos"]);
@@ -234,7 +434,7 @@
 								.style("opacity", 0.9)
                                 .attr("r",function(d) {
 												//if (Math.round(d.x_last) % 2 == 0) {return "blue"}
-												if (d.condition) {return "2"}
+												if (d.condition) {return "3"}
 												else {return "5"};});  // Change size
                         })
                         .delay(function(d, i) {
@@ -242,7 +442,7 @@
                         })
                         //.ease("linear")  // Transition easing - default 'variable' (i.e. has acceleration), also: 'circle', 'elastic', 'bounce', 'linear'
                         .attr("cx", function(d) {
-                            return xScale(d["Lon"]);  // Circle's X
+                            return xScale(d["Lön"]);  // Circle's X
                         })
                         .attr("cy", function(d) {
                             return yScale(d["Prognos"]);  // Circle's Y
@@ -253,8 +453,44 @@
                                 .duration(500)
                                 .attr("fill", "black")  // Change color
 								.style("opacity", 1)
-                                .attr("r", 2);  // Change radius
-                        });
+                                .attr("r", 3);  // Change radius
+                        }).style("fill", function(d){
+                  if(d["Kön"] == "Kvinna"){
+                    return "dodgerblue";
+                  }else{
+                    return "firebrick";
+                  }});
+				
+			var xmax  =  d3.max(data, function(d) {
+                        return d["Lön"]; })
+						
+			var ymax  =  d3.max(data, function(d) {
+                        return d["Prognos"]; })
+						
+			var degreeBreakpoint = Math.atan(ymax/xmax)*180/Math.PI
+
+						
+				svg.selectAll(".GGX")
+					.transition()
+					.duration(500)
+					.attr("x1", xScale(0))     // x position of the first end of the line
+					.attr("y1", yScale(0))      // y position of the first end of the line
+					.attr("x2",  function(d) {
+					if(d < degreeBreakpoint){
+						var x = xScale(xmax);
+					} else {
+						var x =  xScale(ymax*(1/Math.tan(d*Math.PI/180))) ;
+					}
+					return x;
+					})     // x position of the second end of the line
+					.attr("y2", function(d) {
+					if(d < degreeBreakpoint){
+						var x = yScale(d3.min([Math.tan(d*Math.PI/180)*xmax,ymax]));
+					} else {
+						var x =  yScale(ymax);
+					}
+					return x;
+					});
 
                         // Update X Axis
                         svg.select(".x.axis")
@@ -271,14 +507,54 @@
 				maxIndex = d3.max(data, function(d) {
                                 return d["index"];  // input domain
                             });
-                };
-				
-				
-				
-				
-			setInterval(renderNew, 60*1000);	
-	  
 			
+			// update data
+			var males = d3.sum(data, function(d){ return d.Kön == "Man";});
+      var females = d3.sum(data, function(d){ return d.Kön =="Kvinna";});
+	
+            
+      var pieData = [{age:"\u2642", population:males},{age:"\u2640", population:females}]
+		
+		
+		  clearTimeout(1000);
+			pie.value(function(d, i) { return pieData[i].population;}); // change the value function
+			//path = path.datum(dataNew).selectAll("path").data(pie)
+			
+			slice_path = slice_path.data(pie); // compute the new angles
+			slice_path.transition().duration(5000).ease("elastic").attrTween("d", arcTween); // redraw the arcs
+			
+		//------------------------------------------------- slask ---------------------------------------
+		
+		    var width = 660;
+        var height = 10;
+        var radius = Math.min(width, height) / 2;
+        var donutWidth = 200;
+        var legendRectSize = 13;                                  // NEW
+        var legendSpacing = 6;  
+        
+		    var text = [Math.round(females/(males+females)*100)+"/"+ Math.round(males/(females+males)*100)];
+    //-----------------------------------------------------------------------
+    d3.selectAll("#mainLabel").text(text);
+    
+			 label_group.data(pie)
+			  .transition().duration(750)
+			  .attr("transform", function(d) {
+				var c = arc.centroid(d);
+			  return "translate(" + c[0] +"," + c[1] + ")";
+				})
+			
+			
+			function arcTween(a) {
+			  var i = d3.interpolate(this._current, a);
+			  this._current = i(0);
+			  return function(t) {
+				return arc(i(t));
+			  };
+			}
+							
+  };
+				
+			setInterval(renderNew, 10*1000);
 	</script>
 
 
