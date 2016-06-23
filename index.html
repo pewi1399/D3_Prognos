@@ -117,7 +117,7 @@
 
 			
 
-			var degreeLines = [Math.atan(5/4)*180/Math.PI, 45, Math.atan(4/5)*180/Math.PI,Math.atan(7/10)*180/Math.PI]
+			var degreeLines = [Math.atan(1)*180/Math.PI, Math.atan(7/10)*180/Math.PI,Math.atan(1/2)*180/Math.PI]
 			var colors = ["darkslategrey" , "darkslategrey", "darkslategrey", "darkslategrey"]
 			
 			function getRandomInt(min, max) {
@@ -208,9 +208,9 @@
                 .attr("r", 3) // radius
                 .style("fill", function(d){
                   if(d["Kön"] == "Kvinna"){
-                    return "dodgerblue";
-                  }else{
                     return "firebrick";
+                  }else{
+                    return "dodgerblue";
                   }}); //color 
 
             // Add to X axis
@@ -233,7 +233,7 @@
 				.attr("y", canvas_height - 50)
 				.style("font-size", "15px")
 				.style("fill", "grey")
-				.text("L\xF6n idag [SEK]");
+				.text("Månadslön idag [SEK]");
 				
 			svg.append("text")
 				.attr("class", "y label")
@@ -245,7 +245,7 @@
 				.attr("transform", "rotate(-90)")
 				.style("font-size", "15px")
 				.style("fill", "grey")
-				.text("Pensionsprognos, pensionering vid 65 	\xE5r [SEK]");
+				.text("Pensionsprognos, pensionering vid 65 år [SEK]");
 				
 			var maxIndex = d3.max(data, function(d) {
                                 return d["index"];  // input domain
@@ -268,7 +268,7 @@
             var females = d3.sum(data, function(d){ return d.Kön == "Kvinna" ;});
             
             var pieData = [{age:"\u2642", population:males},{age:"\u2640", population:females}]
-            var color =["firebrick", "dodgerblue"]
+            var color =["dodgerblue", "firebrick"]
 	
 			
 	var pathz = svg.datum(pieData).selectAll(".arcz") //slice_group
@@ -303,7 +303,7 @@
      var legendRectSize = 0;                                  // NEW
      var legendSpacing = -15;                                    // NEW
      
-     var text = [Math.round(females/(males+females)*100)+"/"+ Math.round(males/(females+males)*100)]             
+     var text = [females +"|"+ males]             
                   
      var percentage = pathz.selectAll('.percent')                     // NEW
           .data(text)                                   // NEW
@@ -532,7 +532,7 @@
         var legendRectSize = 13;                                  // NEW
         var legendSpacing = 6;  
         
-		    var text = [Math.round(females/(males+females)*100)+"/"+ Math.round(males/(females+males)*100)];
+		    var text = [females+"|"+ males];
     //-----------------------------------------------------------------------
     d3.selectAll("#mainLabel").text(text);
     
