@@ -61,8 +61,8 @@
 			var numValues = data.length;
 			for(var i=0; i<numValues; i++) {
 				data[i].index = i // Add new numbers to array
-				data[i]["Prognos"] = Number(data[i]["Prognos"])
-				data[i]["Lön"] = Number(data[i]["Lön"]);;
+				data[i]["Pensionsprognos, pensionering vid 65"] = Number(data[i]["Pensionsprognos, pensionering vid 65"])
+				data[i]["Månadslön idag"] = Number(data[i]["Månadslön idag"]);;
 			};
 			
 			// Setup settings for graphic
@@ -76,13 +76,13 @@
             // Create scale functions
             var xScale = d3.scale.linear()  // xScale is width of graphic
                             .domain([0, d3.max(data, function(d) {
-                                return d["Lön"];  // input domain
+                                return d["Månadslön idag"];  // input domain
                             })])
                             .range([padding, canvas_width - padding * 2]); // output range
 
             var yScale = d3.scale.linear()  // yScale is height of graphic
                             .domain([0, d3.max(data, function(d) {
-                                return d["Prognos"];  // input domain
+                                return d["Pensionsprognos, pensionering vid 65"];  // input domain
                             })])
                             .range([canvas_height - padding, padding]);  // remember y starts on top going down so we flip
 
@@ -108,10 +108,10 @@
 				
 								
 			var xmax  =  d3.max(data, function(d) {
-                        return d["Lön"]; })
+                        return d["Månadslön idag"]; })
 						
 			var ymax  =  d3.max(data, function(d) {
-                        return d["Prognos"]; })
+                        return d["Pensionsprognos, pensionering vid 65"]; })
 						
 			var degreeBreakpoint = Math.atan(ymax/xmax)*180/Math.PI
 
@@ -199,11 +199,11 @@
                 .append("circle")  // Add circle svg
                 .attr("cx", function(d) {
 					//d["x_last"] = xScale(d["x"]);
-                    return xScale(d["Lön"]);  // Circle's X
+                    return xScale(d["Månadslön idag"]);  // Circle's X
                 })
                 .attr("cy", function(d) {  // Circle's Y
 					//d["x_new"] =xScale(d["y"]);
-                    return yScale(d["Prognos"]);
+                    return yScale(d["Pensionsprognos, pensionering vid 65"]);
                 })
                 .attr("r", 3) // radius
                 .style("fill", function(d){
@@ -376,8 +376,8 @@
 	  			var numValues = data.length;
 			for(var i=0; i<numValues; i++) {
 				data[i].index = i // Add new numbers to array
-				data[i]["Prognos"] = Number(data[i]["Prognos"])
-				data[i]["Lön"] = Number(data[i]["Lön"]);;
+				data[i]["Pensionsprognos, pensionering vid 65"] = Number(data[i]["Pensionsprognos, pensionering vid 65"])
+				data[i]["Månadslön idag"] = Number(data[i]["Månadslön idag"]);;
 			};
 	  
                     //var numValues = 4;  // Get original dataset's length
@@ -398,9 +398,9 @@
 					
                     // Update scale domains
                     xScale.domain([0, d3.max(data, function(d) {
-                        return d["Lön"]; })]);
+                        return d["Månadslön idag"]; })]);
                     yScale.domain([0, d3.max(data, function(d) {
-                        return d["Prognos"]; })]);
+                        return d["Pensionsprognos, pensionering vid 65"]; })]);
 					
 					//dataset = dataset.filter(function(d) { return d.x_last != xScale(d.x)})
 
@@ -412,10 +412,10 @@
 						.enter()
 						.append("circle")  // Add circle svg
 						.attr("cx", function(d) {
-							return xScale(d["Lön"]);  // Circle's X
+							return xScale(d["Månadslön idag"]);  // Circle's X
 						})
 						.attr("cy", function(d) {  // Circle's Y
-							return yScale(d["Prognos"]);
+							return yScale(d["Pensionsprognos, pensionering vid 65"]);
 						})
 						.attr("r", 2)
 						.attr("fill", "white");  // radius
@@ -442,10 +442,10 @@
                         })
                         //.ease("linear")  // Transition easing - default 'variable' (i.e. has acceleration), also: 'circle', 'elastic', 'bounce', 'linear'
                         .attr("cx", function(d) {
-                            return xScale(d["Lön"]);  // Circle's X
+                            return xScale(d["Månadslön idag"]);  // Circle's X
                         })
                         .attr("cy", function(d) {
-                            return yScale(d["Prognos"]);  // Circle's Y
+                            return yScale(d["Pensionsprognos, pensionering vid 65"]);  // Circle's Y
                         })
                         .each("end", function() {  // End animation
                             d3.select(this)  // 'this' means the current element
@@ -462,10 +462,10 @@
                   }});
 				
 			var xmax  =  d3.max(data, function(d) {
-                        return d["Lön"]; })
+                        return d["Månadslön idag"]; })
 						
 			var ymax  =  d3.max(data, function(d) {
-                        return d["Prognos"]; })
+                        return d["Pensionsprognos, pensionering vid 65"]; })
 						
 			var degreeBreakpoint = Math.atan(ymax/xmax)*180/Math.PI
 
