@@ -31,6 +31,8 @@
                 font-family: sans-serif;
                 font-size: 11px;
             }
+			
+			.body {font-family:"Neo Sans fonts", Verdana, sans-serif}
     </style>
     <!-- End CSS (Styling) -->
 
@@ -65,6 +67,8 @@
 				data[i]["Månadslön idag"] = Number(data[i]["Månadslön idag"]);;
 			};
 			
+			var drawPadding = 10000;
+			
 			// Setup settings for graphic
             var canvas_width = 1100;
             var canvas_height = 700;
@@ -75,13 +79,13 @@
 
             // Create scale functions
             var xScale = d3.scale.linear()  // xScale is width of graphic
-                            .domain([0, d3.max(data, function(d) {
+                            .domain([0, drawPadding + d3.max(data, function(d) {
                                 return d["Månadslön idag"];  // input domain
                             })])
                             .range([padding, canvas_width - padding * 2]); // output range
 
             var yScale = d3.scale.linear()  // yScale is height of graphic
-                            .domain([0, d3.max(data, function(d) {
+                            .domain([0, drawPadding + d3.max(data, function(d) {
                                 return d["Pensionsprognos, pensionering vid 65"];  // input domain
                             })])
                             .range([canvas_height - padding, padding]);  // remember y starts on top going down so we flip
@@ -90,13 +94,13 @@
             var xAxis = d3.svg.axis()
                             .scale(xScale)
                             .orient("bottom")
-                            .ticks(5);
+                            .ticks(10);
 
             // Define Y axis
             var yAxis = d3.svg.axis()
                             .scale(yScale)
                             .orient("left")
-                            .ticks(5);		
+                            .ticks(10);		
 
 
 			// Create SVG element
@@ -108,10 +112,10 @@
 				
 								
 			var xmax  =  d3.max(data, function(d) {
-                        return d["Månadslön idag"]; })
+                        return d["Månadslön idag"]; }) + drawPadding;
 						
 			var ymax  =  d3.max(data, function(d) {
-                        return d["Pensionsprognos, pensionering vid 65"]; })
+                        return d["Pensionsprognos, pensionering vid 65"]; }) + drawPadding;
 						
 			var degreeBreakpoint = Math.atan(ymax/xmax)*180/Math.PI
 
@@ -227,7 +231,7 @@
 				
 			svg.append("text")
 				.attr("class", "x label")
-				.attr("style", "font-family:Arial")
+				.attr("style", "font-family:Verdana")
 				.attr("text-anchor", "end")
 				.attr("x", canvas_width/2)
 				.attr("y", canvas_height - 50)
@@ -238,7 +242,7 @@
 			svg.append("text")
 				.attr("class", "y label")
 				.attr("text-anchor", "end")
-				.attr("style", "font-family:Arial")
+				.attr("style", "font-family:Verdana")
 				.attr("y", 20)
 				.attr("x", -(canvas_height-padding)/4)
 				.attr("dy", ".75em")
@@ -297,7 +301,7 @@
 	  .attr("dy", ".35em")
 	  .attr("dx", "-.0em")
 	  .attr("fill", "white")
-	  .attr("style", "font-family:Arial");
+	  .attr("style", "font-family:Verdana");
 
 				  
      var legendRectSize = 0;                                  // NEW
@@ -321,7 +325,7 @@
         percentage.append('text')
           .attr('x', legendRectSize + legendSpacing+15)
           .attr('y', legendRectSize + legendSpacing+2)
-          .attr("style", "font-family:Arial")
+          .attr("style", "font-family:Verdana")
           .style("font-size", "17px")
           .style("fill","black")
           .text(function(d) { return d; })
@@ -360,6 +364,7 @@
 				window.height = height;
 				window.percentage = percentage;
 				window.color = color;
+				window.drawPadding = drawPadding;
 				
 		};		
 			// On click, update with new data
@@ -397,9 +402,9 @@
 					
 					
                     // Update scale domains
-                    xScale.domain([0, d3.max(data, function(d) {
+                    xScale.domain([0, drawPadding + d3.max(data, function(d) {
                         return d["Månadslön idag"]; })]);
-                    yScale.domain([0, d3.max(data, function(d) {
+                    yScale.domain([0, drawPadding + d3.max(data, function(d) {
                         return d["Pensionsprognos, pensionering vid 65"]; })]);
 					
 					//dataset = dataset.filter(function(d) { return d.x_last != xScale(d.x)})
@@ -462,10 +467,10 @@
                   }});
 				
 			var xmax  =  d3.max(data, function(d) {
-                        return d["Månadslön idag"]; })
+                        return d["Månadslön idag"]; }) + drawPadding;
 						
 			var ymax  =  d3.max(data, function(d) {
-                        return d["Pensionsprognos, pensionering vid 65"]; })
+                        return d["Pensionsprognos, pensionering vid 65"]; }) + drawPadding;
 						
 			var degreeBreakpoint = Math.atan(ymax/xmax)*180/Math.PI
 
@@ -555,6 +560,17 @@
   };
 				
 			setInterval(renderNew, 10*1000);
+			
+			
+	function colorchange(){
+		slice_path.style("fill",  function(d, i) { return ["#EF8200","#E34912"][i]; });
+		svg.selectAll("circle").style("fill", function(d){
+                  if(d["Kön"] == "Kvinna"){
+                    return "#EF8200";
+                  }else{
+                    return "#E34912";
+                  }});
+	};
 	</script>
 
 
