@@ -40,7 +40,6 @@
 	
     <!-- Load D3 from site -->
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-	<script src="https://d3js.org/d3-time-format.v2.min.js"></script>
     <script type="text/javascript" src="src/tabletop.js"></script>
 	
 	<!--<h2>Lon/Pensionsprognos D3</h2>-->
@@ -92,10 +91,6 @@
 			
 			var drawPadding = 10000;
 			var SWE = d3.locale(swe_SWE);
-			
-			var formatMonth = d3.utcParse("%d/%m/%Y %H:%M:%S");
-
-			
 			
 			// Setup settings for graphic
             var canvas_width = 1100;
@@ -208,7 +203,6 @@
                 .data(data)
                 .enter()
                 .append("circle")  // Add circle svg
-				.attr("class", "pointz")
                 .attr("cx", function(d) {
 					//d["x_last"] = xScale(d["x"]);
                     return xScale(d["Månadslön idag"]);  // Circle's X
@@ -225,46 +219,6 @@
                     return "dodgerblue";
                   }}); //color 
 
-				  
-				  
-				var maxIndex = d3.max(data, function(d) {
-					return d["index"];  // input domain
-				});
-				
-
-		d3.selection.prototype.last = function() {
-		  var last = this.size() - 1;
-		  return d3.select(this[0][last]);
-		};
-				  
-	function transitions(){
-				  return  svg.selectAll(".pointz").last()
-						.transition()
-						.duration(1000)
-						 .style("fill", function(d){
-                  if(d["Kön"] == "Kvinna"){
-                    return "firebrick";
-                  }else{
-                    return "dodgerblue";
-                  }})
-						.style("r", 4)
-						.transition()
-						.duration(1000)
-						.style("r", 6)
-						.style("fill", "orange")
-						.each("end", transitions);
-				};
-
-				// get time 
-				var d = new Date();
-				
-				var lastTime = d3.time.hour.offset( formatMonth(data[data.length-1].Timestamp), -2 )
-				
-			if((d-lastTime) < 30000){				
-						transitions();
-			 }
-				  
-				  
             // Add to X axis
             svg.append("g")
                 .attr("class", "x axis")
@@ -299,7 +253,9 @@
 				.style("fill", "grey")
 				.text("Pensionsprognos, pensionering vid 65 år, kr");
 				
-
+			var maxIndex = d3.max(data, function(d) {
+                                return d["index"];  // input domain
+                            });
                             
             var w = 130,
                 h = 250,
@@ -416,10 +372,233 @@
               d.population = +d.population;
               return d;
             }                
-
+                            
+                            	
+				window.xScale = xScale;
+				window.yScale = yScale;
+				window.svg = svg;
+				window.xAxis = xAxis;
+				window.yAxis = yAxis;
+				window.maxIndex = maxIndex;
+				window.pie = pie;
+				window.pathz = pathz;
+				window.arc = arc;
+				window.slice_path = slice_path;
+				window.label_group = label_group;
+				window.line_1 = line_1;
+				window.percentage = percentage;
+				window.legendSpacing = legendSpacing;
+				window.legendRectSize = legendRectSize;
+				window.height = height;
+				window.percentage = percentage;
+				window.color = color;
+				window.drawPadding = drawPadding;
 				
 		};		
+			// On click, update with new data
+            //d3.select("h2")
+			
+		function renderNew() {
+		Tabletop.init( { key: public_spreadsheet_url,
+						 callback: showInfoN,
+						 simpleSheet: true } )
+	  }
+
+	  function showInfoN(data, tabletop) {
+	  
+	  			var numValues = data.length;
+			for(var i=0; i<numValues; i++) {
+				data[i].index = i // Add new numbers to array
+				data[i]["Pensionsprognos, pensionering vid 65"] = Number(data[i]["Pensionsprognos, pensionering vid 65"])
+				data[i]["Månadslön idag"] = Number(data[i]["Månadslön idag"]);;
+			};
+	  
+                    //var numValues = 4;  // Get original dataset's length
+                    //var maxRange = Math.random() * 1000000;  // Get max range of new values
+                    //dataset = [];  // Initialize empty array
+                   // for(var i=0; i<numValues; i++) {
+                    //    var newNumber1 = Math.floor(Math.random() * maxRange);  // Random int for x
+                     //   var newNumber2 = Math.floor(Math.random() * maxRange);  // Random int for y
+					//	var inde = 1+ i + maxIndex
+                    //    data.push({Lon:newNumber1,Prognos:newNumber2, index:inde});  // Add new numbers to array
+                    //}
+					
+					//is point new or not
+					for(var i=0; i<data.length; i++) {
+						data[i].condition = (data[i].index <= maxIndex);  // Add condition
+					};
+					
+					
+                    // Update scale domains
+                    xScale.domain([0, drawPadding + d3.max(data, function(d) {
+                        return d["Månadslön idag"]; })]);
+                    yScale.domain([0, drawPadding + d3.max(data, function(d) {
+                        return d["Pensionsprognos, pensionering vid 65"]; })]);
+					
+					//dataset = dataset.filter(function(d) { return d.x_last != xScale(d.x)})
+
+					
+					// Create Circles
+					svg.selectAll("circle")
+						.data(data)
+						//.filter(function(d) { return d["x_last"] != xScale(d["x"])})
+						.enter()
+						.append("circle")  // Add circle svg
+						.attr("cx", function(d) {
+							return xScale(d["Månadslön idag"]);  // Circle's X
+						})
+						.attr("cy", function(d) {  // Circle's Y
+							return yScale(d["Pensionsprognos, pensionering vid 65"]);
+						})
+						.attr("r", 2)
+						.attr("fill", "white");  // radius
+
+                    // Update circles
+                    svg.selectAll("circle")
+                        .data(data)  // Update with new data
+                        .transition()  // Transition from old to new
+                        .duration(1000)  // Length of animation
+                        .each("start", function() {  // Start animation
+                            d3.select(this)  // 'this' means the current element
+                                .attr("fill", function(d) {
+												//if (Math.round(d.x_last) % 2 == 0) {return "blue"}
+												if (d.condition) {return "black"}
+												else {return "orange"};})// Change color
+								.style("opacity", 0.9)
+                                .attr("r",function(d) {
+												//if (Math.round(d.x_last) % 2 == 0) {return "blue"}
+												if (d.condition) {return "3"}
+												else {return "5"};});  // Change size
+                        })
+                        .delay(function(d, i) {
+                            return i / data.length * 500;  // Dynamic delay (i.e. each item delays a little longer)
+                        })
+                        //.ease("linear")  // Transition easing - default 'variable' (i.e. has acceleration), also: 'circle', 'elastic', 'bounce', 'linear'
+                        .attr("cx", function(d) {
+                            return xScale(d["Månadslön idag"]);  // Circle's X
+                        })
+                        .attr("cy", function(d) {
+                            return yScale(d["Pensionsprognos, pensionering vid 65"]);  // Circle's Y
+                        })
+                        .each("end", function() {  // End animation
+                            d3.select(this)  // 'this' means the current element
+                                .transition()
+                                .duration(500)
+                                .attr("fill", "black")  // Change color
+								.style("opacity", 1)
+                                .attr("r", 3);  // Change radius
+                        }).style("fill", function(d){
+                  if(d["Kön"] == "Kvinna"){
+                    return "firebrick";
+                  }else{
+                    return "dodgerblue";
+                  }});
+				
+			var xmax  =  d3.max(data, function(d) {
+                        return d["Månadslön idag"]; }) + drawPadding;
+						
+			var ymax  =  d3.max(data, function(d) {
+                        return d["Pensionsprognos, pensionering vid 65"]; }) + drawPadding;
+						
+			var degreeBreakpoint = Math.atan(ymax/xmax)*180/Math.PI
+
+						
+				svg.selectAll(".GGX")
+					.transition()
+					.duration(500)
+					.attr("x1", xScale(0))     // x position of the first end of the line
+					.attr("y1", yScale(0))      // y position of the first end of the line
+					.attr("x2",  function(d) {
+					if(d < degreeBreakpoint){
+						var x = xScale(xmax);
+					} else {
+						var x =  xScale(ymax*(1/Math.tan(d*Math.PI/180))) ;
+					}
+					return x;
+					})     // x position of the second end of the line
+					.attr("y2", function(d) {
+					if(d < degreeBreakpoint){
+						var x = yScale(d3.min([Math.tan(d*Math.PI/180)*xmax,ymax]));
+					} else {
+						var x =  yScale(ymax);
+					}
+					return x;
+					});
+
+                        // Update X Axis
+                        svg.select(".x.axis")
+                            .transition()
+                            .duration(1000)
+                            .call(xAxis);
+
+                        // Update Y Axis
+                        svg.select(".y.axis")
+                            .transition()
+                            .duration(100)
+                            .call(yAxis);
+							
+				maxIndex = d3.max(data, function(d) {
+                                return d["index"];  // input domain
+                            });
+			
+			// update data
+			var males = d3.sum(data, function(d){ return d.Kön == "Man";});
+      var females = d3.sum(data, function(d){ return d.Kön =="Kvinna";});
+	
+            
+      var pieData = [{age:"\u2642", population:males},{age:"\u2640", population:females}]
 		
+		
+		  clearTimeout(1000);
+			pie.value(function(d, i) { return pieData[i].population;}); // change the value function
+			//path = path.datum(dataNew).selectAll("path").data(pie)
+			
+			slice_path = slice_path.data(pie); // compute the new angles
+			slice_path.transition().duration(5000).ease("elastic").attrTween("d", arcTween); // redraw the arcs
+			
+		//------------------------------------------------- slask ---------------------------------------
+		
+		    var width = 660;
+        var height = 10;
+        var radius = Math.min(width, height) / 2;
+        var donutWidth = 200;
+        var legendRectSize = 13;                                  // NEW
+        var legendSpacing = 6;  
+        
+		    var text = [females+"|"+ males];
+    //-----------------------------------------------------------------------
+    d3.selectAll("#mainLabel").text(text);
+    
+			 label_group.data(pie)
+			  .transition().duration(750)
+			  .attr("transform", function(d) {
+				var c = arc.centroid(d);
+			  return "translate(" + c[0] +"," + c[1] + ")";
+				})
+			
+			
+			function arcTween(a) {
+			  var i = d3.interpolate(this._current, a);
+			  this._current = i(0);
+			  return function(t) {
+				return arc(i(t));
+			  };
+			}
+							
+  };
+				
+			setInterval(renderNew, 10*1000);
+			
+			
+	function colorchange(){
+		slice_path.style("fill",  function(d, i) { return ["#EF8200","#E34912"][i]; });
+		svg.selectAll("circle").style("fill", function(d){
+                  if(d["Kön"] == "Kvinna"){
+                    return "#EF8200";
+                  }else{
+                    return "#E34912";
+                  }});
+	};
 	</script>
 
 
