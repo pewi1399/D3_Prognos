@@ -68,8 +68,8 @@
 			var numValues = data.length;
 			for(var i=0; i<numValues; i++) {
 				data[i].index = i // Add new numbers to array
-				data[i]["Y_pension"] = Number(data[i]["Y_pension"])
-				data[i]["X_lön"] = Number(data[i]["X_lön"]);;
+				data[i]["Pensionsprognos, pensionering vid 65"] = Number(data[i]["Pensionsprognos, pensionering vid 65"])
+				data[i]["Månadslön idag"] = Number(data[i]["Månadslön idag"]);;
 			};
 			
 			
@@ -108,13 +108,13 @@
             // Create scale functions
             var xScale = d3.scale.linear()  // xScale is width of graphic
                             .domain([0, drawPadding + d3.max(data, function(d) {
-                                return d["X_lön"];  // input domain
+                                return d["Månadslön idag"];  // input domain
                             })])
                             .range([padding, canvas_width - padding * 2]); // output range
 
             var yScale = d3.scale.linear()  // yScale is height of graphic
                             .domain([0, drawPadding + d3.max(data, function(d) {
-                                return d["Y_pension"];  // input domain
+                                return d["Pensionsprognos, pensionering vid 65"];  // input domain
                             })])
                             .range([canvas_height - padding, padding]);  // remember y starts on top going down so we flip
 
@@ -142,10 +142,10 @@
 				
 								
 			var xmax  =  d3.max(data, function(d) {
-                        return d["X_lön"]; }) + drawPadding;
+                        return d["Månadslön idag"]; }) + drawPadding;
 						
 			var ymax  =  d3.max(data, function(d) {
-                        return d["Y_pension"]; }) + drawPadding;
+                        return d["Pensionsprognos, pensionering vid 65"]; }) + drawPadding;
 						
 			var degreeBreakpoint = Math.atan(ymax/xmax)*180/Math.PI
 
@@ -211,11 +211,11 @@
 				.attr("class", "pointz")
                 .attr("cx", function(d) {
 					//d["x_last"] = xScale(d["x"]);
-                    return xScale(d["X_lön"]);  // Circle's X
+                    return xScale(d["Månadslön idag"]);  // Circle's X
                 })
                 .attr("cy", function(d) {  // Circle's Y
 					//d["x_new"] =xScale(d["y"]);
-                    return yScale(d["Y_pension"]);
+                    return yScale(d["Pensionsprognos, pensionering vid 65"]);
                 })
                 .attr("r", 3) // radius
                 .style("fill", function(d){
