@@ -218,12 +218,14 @@
                     return yScale(d["Pensionsprognos, pensionering vid 65"]);
                 })
                 .attr("r", 4) // radius
-                .style("fill", function(d){
+		.attr("fill", "none")
+                .style("stroke", function(d){
                   if(d["Kön"] == "Kvinna"){
                     return "firebrick";
                   }else{
                     return "dodgerblue";
-                  }}); //color 
+                  }})
+		.style("stroke-width", 1.5); //color 
 
 				  
 				  
@@ -239,28 +241,23 @@
 				  
 	function transitions(){
 				  return  svg.selectAll(".pointz").last()
+					  	.style("fill", "white")
 						.transition()
 						.duration(800)
 					       .style("stroke-width", 1)	
-						 .style("fill", function(d){
+						 .style("stroke", function(d){
                   if(d["Kön"] == "Kvinna"){
                     return "firebrick";
                   }else{
                     return "dodgerblue";
                   }})
-				  .style("fill", function(d){
-                  	if(d["Kön"] == "Kvinna"){
-                    		return "firebrick";
-                 		 }else{
-                   			 return "dodgerblue";
-                 				 }})
 						.style("r", 3.5)
 						.transition()
 						.duration(800)
 						.style("r", 6)
-						.style("fill", "orange")
 						.style("stroke", "orange")
-					       	.style("stroke-width", 4.5)	
+					       	.style("stroke-width", 6)
+						.style("fill", "orange")	
 						.each("end", transitions);
 				};
 
@@ -269,7 +266,7 @@
 				
 				var lastTime = d3.time.hour.offset( formatMonth(data[data.length-1].Timestamp), -2 )
 				
-			if((d-lastTime) < 30000){				
+			if((d-lastTime) < 3120000){				
 						transitions();
 			 }
 				  
