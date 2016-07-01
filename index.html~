@@ -241,19 +241,26 @@
 				  return  svg.selectAll(".pointz").last()
 						.transition()
 						.duration(800)
+					       .style("stroke-width", 1)	
 						 .style("fill", function(d){
                   if(d["Kön"] == "Kvinna"){
                     return "firebrick";
                   }else{
                     return "dodgerblue";
                   }})
+				  .style("fill", function(d){
+                  	if(d["Kön"] == "Kvinna"){
+                    		return "firebrick";
+                 		 }else{
+                   			 return "dodgerblue";
+                 				 }})
 						.style("r", 3.5)
 						.transition()
 						.duration(800)
 						.style("r", 6)
 						.style("fill", "orange")
-						.style("stroke", "green")
-					       	.style("stroke-width", 3)	
+						.style("stroke", "orange")
+					       	.style("stroke-width", 4.5)	
 						.each("end", transitions);
 				};
 
