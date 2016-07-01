@@ -241,7 +241,7 @@
 				  return  svg.selectAll(".pointz").last()
 						.transition()
 						.duration(800)
-					       .style("stroke-width", 0)	
+					       .style("stroke-width", 3)	
 						 .style("fill", function(d){
                   if(d["Kön"] == "Kvinna"){
                     return "firebrick";
@@ -254,7 +254,7 @@
 						.style("r", 6)
 						.style("fill", "orange")
 						.style("stroke", "orange")
-					       	.style("stroke-width", 3)	
+					       	.style("stroke-width", 4.5)	
 						.each("end", transitions);
 				};
 
