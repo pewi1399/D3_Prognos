@@ -253,7 +253,7 @@
 						.duration(800)
 						.style("r", 6)
 						.style("fill", "orange")
-						.style("stroke", "orange")
+						.style("stroke", "red")
 					       	.style("stroke-width", 3)	
 						.each("end", transitions);
 				};
